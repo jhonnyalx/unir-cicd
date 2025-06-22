@@ -30,14 +30,7 @@ pipeline {
                     
                     // Usar git directamente para obtener la rama específica
                     git branch: "${branchName}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
-                    
-                    // Mostrar información detallada de la rama actual 
-                    sh 'echo "Rama actual: $(git branch --show-current)"'
-                    sh 'echo "Último commit: $(git log -1 --oneline)"'
-                    sh 'echo "Commits recientes en esta rama:"'
-                    sh 'git log --oneline -5'
-                    sh 'echo "Archivos modificados en el último commit:"'
-                    sh 'git show --name-only --pretty="" HEAD'
+            
                 }
             }
         }
@@ -56,6 +49,14 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: 'results/unit_result.xml', fingerprint: true
+                    publishHTML(target: [
+                        reportName: 'Unit Test Report',
+                        reportDir: 'results',
+                        reportFiles: 'unit_result.xml',
+                        keepAll: true,
+                        alwaysLinkToLastBuild: true,
+                        allowMissing: false
+                    ])
                 }
             }
         }
