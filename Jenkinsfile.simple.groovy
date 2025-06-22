@@ -24,8 +24,6 @@ pipeline {
                     }
                     
                     echo "=== INFORMACIÓN DE RAMA ==="
-                    echo "TARGET_BRANCH: ${env.TARGET_BRANCH}"
-                    echo "BRANCH_NAME: ${env.BRANCH_NAME}"
                     echo "GIT_BRANCH: ${env.GIT_BRANCH}"
                     echo "Rama seleccionada: ${branchName}"
                     echo "=========================="
