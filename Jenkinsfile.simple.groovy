@@ -88,8 +88,15 @@ pipeline {
                     // Archivar todos los archivos XML de pruebas
                     archiveArtifacts artifacts: 'results/*.xml', fingerprint: true, allowEmptyArchive: true
                     
-                    // Generar reporte consolidado de pruebas
-                    publishTestResults testResultsPattern: 'results/*.xml'
+                    // Publicar reporte consolidado de todas las pruebas
+                    publishHTML(target: [
+                        reportName: 'Consolidated Test Report',
+                        reportDir: 'results',
+                        reportFiles: '*.xml',
+                        keepAll: true,
+                        alwaysLinkToLastBuild: true,
+                        allowMissing: true
+                    ])
                 }
             }
         }
