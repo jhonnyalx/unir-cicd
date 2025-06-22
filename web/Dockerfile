@@ -1,5 +1,6 @@
 FROM nginx
 
+WORKDIR /usr/share/nginx/html
 
-COPY ./index.html /usr/share/nginx/html
-COPY ./constants.js /usr/share/nginx/html/constants.js
+COPY index.html .
+COPY constants.js constants.js
