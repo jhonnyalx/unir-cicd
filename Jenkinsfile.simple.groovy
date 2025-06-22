@@ -2,24 +2,45 @@ pipeline {
     agent {
         label 'docker'
     }
+    
+    environment {
+        // Forzar rama específica si es necesario
+        TARGET_BRANCH = 'feature/dev-jzapata'
+    }
 
     stages {
         stage('Source') {
             steps {
                 script {
-                    // Detectar automáticamente la rama del commit
-                    def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'master'
-                    echo "Construyendo automáticamente desde la rama: ${branchName}"
+                    // Detectar la rama de múltiples fuentes
+                    def branchName = env.TARGET_BRANCH ?: 
+                                   env.BRANCH_NAME ?: 
+                                   env.GIT_BRANCH ?: 
+                                   env.ghprbSourceBranch ?: 
+                                   'feature/dev-jzapata'
                     
-                    // Opción 1: Usar checkout para obtener automáticamente la rama correcta
-                    checkout scm
+                    // Limpiar el nombre de la rama si viene con prefijo origin/
+                    if (branchName.startsWith('origin/')) {
+                        branchName = branchName.replaceFirst('origin/', '')
+                    }
                     
-                    // Opción 2: Alternativa usando git directamente (comentada)
-                    // git branch: "${branchName}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
+                    echo "=== INFORMACIÓN DE RAMA ==="
+                    echo "TARGET_BRANCH: ${env.TARGET_BRANCH}"
+                    echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                    echo "GIT_BRANCH: ${env.GIT_BRANCH}"
+                    echo "Rama seleccionada: ${branchName}"
+                    echo "=========================="
                     
-                    // Mostrar información de la rama actual 
+                    // Usar git directamente para obtener la rama específica
+                    git branch: "${branchName}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
+                    
+                    // Mostrar información detallada de la rama actual 
                     sh 'echo "Rama actual: $(git branch --show-current)"'
                     sh 'echo "Último commit: $(git log -1 --oneline)"'
+                    sh 'echo "Commits recientes en esta rama:"'
+                    sh 'git log --oneline -5'
+                    sh 'echo "Archivos modificados en el último commit:"'
+                    sh 'git show --name-only --pretty="" HEAD'
                 }
             }
         }
