@@ -1,7 +1,5 @@
 FROM nginx
 
-# Establecer el directorio de trabajo
-WORKDIR /usr/share/nginx/html
 
-# Copiar archivos estáticos
-COPY . .
+COPY ./index.html /usr/share/nginx/html
+COPY ./constants.test.js /usr/share/nginx/html/constants.js

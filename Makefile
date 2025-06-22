@@ -1,4 +1,4 @@
-.PHONY: all clean-api clean-test $(MAKECMDGOALS)
+.PHONY: all $(MAKECMDGOALS)
 
 build:
 	docker build -t calculator-app .
@@ -7,21 +7,23 @@ build:
 server:
 	docker run --rm --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 
-test-unit: clean-test
-	-docker rm -f unit-tests || true
-	mkdir -p results
-	docker run --name unit-tests --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest bash -c "mkdir -p results && pytest --cov=app --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml -m unit" || true
-	docker cp unit-tests:/opt/calc/results ./ || true
-	docker rm -f unit-tests || true
+test-unit:
+	docker run --name unit-tests --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest pytest --cov --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml -m unit || true
+	docker cp unit-tests:/opt/calc/results ./
+	docker rm unit-tests || true
 
-test-api: clean-test clean-api
+test-api:
 	docker network create calc-test-api || true
-	docker run -d --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run --network calc-test-api --name api-tests --env PYTHONPATH=/opt/calc --env BASE_URL=http://apiserver:5000/ -w /opt/calc calculator-app:latest pytest --junit-xml=results/api_result.xml -m api  || true
 	docker cp api-tests:/opt/calc/results ./
-	make clean-api
+	docker stop apiserver || true
+	docker rm --force apiserver || true
+	docker stop api-tests || true
+	docker rm --force api-tests || true
+	docker network rm calc-test-api || true
 
-test-e2e: clean-test
+test-e2e:
 	docker network create calc-test-e2e || true
 	docker stop apiserver || true
 	docker rm --force apiserver || true
@@ -29,16 +31,12 @@ test-e2e: clean-test
 	docker rm --force calc-web || true
 	docker stop e2e-tests || true
 	docker rm --force e2e-tests || true
-	docker run -d --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
-	docker run -d --network calc-test-e2e --name calc-web -p 80:80 -v $(PWD)/web/constants.test.js:/usr/share/nginx/html/constants.js calc-web
+	docker run -d --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --network calc-test-e2e --name calc-web -p 80:80 calc-web
 	docker create --network calc-test-e2e --name e2e-tests cypress/included:4.9.0 --browser chrome || true
 	docker cp ./test/e2e/cypress.json e2e-tests:/cypress.json
 	docker cp ./test/e2e/cypress e2e-tests:/cypress
-	sleep 5 # Dar tiempo a que los servicios estén listos
 	docker start -a e2e-tests || true
-#ojo luego eliminar
-	docker cp e2e-tests:/cypress/screenshots ./results/screenshots || true
-	docker cp e2e-tests:/cypress/videos ./results/videos || true
 	docker cp e2e-tests:/results ./  || true
 	docker rm --force apiserver  || true
 	docker rm --force calc-web || true
@@ -72,13 +70,3 @@ deploy-stage:
 	docker stop calc-web || true
 	docker run -d --rm --name apiserver --network-alias apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
 	docker run -d --rm --name calc-web -p 80:80 calc-web
-
-clean-test:
-	@echo "Limpiando archivos temporales de pruebas..."
-	rm -rf results/coverage results/*.xml results/screenshots results/videos || true
-	@echo "Limpieza completada"
-
-clean-api:
-	-docker stop apiserver api-tests || true
-	-docker rm -f apiserver api-tests || true
-	-docker network rm calc-test-api || true

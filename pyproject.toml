@@ -1,25 +1,8 @@
-[build-system]
-requires = ["setuptools>=42.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[tool.pytest.ini_options]
-junit_family = "xunit2"
-markers = [
-    "unit: pruebas unitarias",
-    "api: pruebas de API, requiere aplicacion en ejecucion"
-]
-
-[tool.coverage.run]
-source = ["app"]
-omit = ["*__init__.py", "test/*"]
-
-[tool.coverage.html]
-directory = "results/coverage"
-
+# Settings for black autoformatter (FIXME: we should just use a script with command-line options)
 [tool.black]
-exclude = "/src/(vendor)/"
-fast = true
-line-length = 160
-skip-string-normalization = true
-verbose = true
-quite = true
+exclude = "/src/(vendor)/"            # --exclude
+fast = true                           # --fast
+line-length = 160                     # -l 160
+skip-string-normalization = true      # -S
+verbose = true                        # -v
+quite = true                          # -q 
