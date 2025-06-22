@@ -3,11 +3,6 @@ pipeline {
         label 'docker'
     }
     
-    // environment {
-        // Forzar rama específica si es necesario - COMENTADO para detección automática
-        // TARGET_BRANCH = 'feature/dev-jzapata'
-    // }
-
     stages {
         stage('Source') {
             steps {
