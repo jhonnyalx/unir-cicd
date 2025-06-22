@@ -1,6 +1,6 @@
 FROM python:3.6-slim
 
-RUN mkdir -p /opt/calc
+RUN mkdir -p /opt/calc /opt/calc/results
 
 WORKDIR /opt/calc
 

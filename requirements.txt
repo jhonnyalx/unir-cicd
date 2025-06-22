@@ -1,5 +1,6 @@
 flask==1.1.2
 pytest==5.4.3
-pytest-cov==2.10.0
+pytest-cov==2.10.0[toml]
 pylint==2.5.3
+toml==0.10.2
 junit2html
