@@ -2,11 +2,29 @@ pipeline {
     agent {
         label 'docker'
     }
+    
+    // Parámetros para permitir selección de rama
+    parameters {
+        choice(
+            name: 'BRANCH_NAME',
+            choices: ['main', 'develop', 'feature/test', 'release/v1.0'],
+            description: 'Selecciona la rama a construir'
+        )
+        booleanParam(
+            name: 'FORCE_BUILD',
+            defaultValue: false,
+            description: 'Forzar construcción incluso si no hay cambios'
+        )
+    }
 
     stages {
         stage('Source') {
             steps {
-                git 'https://github.com/jhonnyalx/unir-cicd.git'
+                script {
+                    echo "Construyendo desde la rama: ${params.BRANCH_NAME}"
+                    // Usar el parámetro para seleccionar la rama
+                    git branch: "${params.BRANCH_NAME}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
+                }
             }
         }
         
