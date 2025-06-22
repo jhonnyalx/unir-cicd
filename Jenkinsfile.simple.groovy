@@ -3,21 +3,20 @@ pipeline {
         label 'docker'
     }
     
-    environment {
-        // Forzar rama específica si es necesario
-        TARGET_BRANCH = 'feature/dev-jzapata'
-    }
+    // environment {
+        // Forzar rama específica si es necesario - COMENTADO para detección automática
+        // TARGET_BRANCH = 'feature/dev-jzapata'
+    // }
 
     stages {
         stage('Source') {
             steps {
                 script {
-                    // Detectar la rama de múltiples fuentes
-                    def branchName = env.TARGET_BRANCH ?: 
+                    // Detectar la rama automáticamente desde Git
+                    def branchName = env.GIT_BRANCH ?: 
                                    env.BRANCH_NAME ?: 
-                                   env.GIT_BRANCH ?: 
                                    env.ghprbSourceBranch ?: 
-                                   'feature/dev-jzapata'
+                                   'main'
                     
                     // Limpiar el nombre de la rama si viene con prefijo origin/
                     if (branchName.startsWith('origin/')) {
