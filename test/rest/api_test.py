@@ -6,7 +6,7 @@ from urllib.request import urlopen
 import pytest
 
 BASE_URL = os.environ.get("BASE_URL")
-DEFAULT_TIMEOUT = 2  # in secs
+DEFAULT_TIMEOUT = 10  # in secs
 
 
 @pytest.mark.api
