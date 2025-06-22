@@ -6,7 +6,7 @@ pipeline {
 
     stage('Source') {
         steps {
-            git 'https://github.com/srayuso/unir-cicd.git'
+            git 'https://github.com/jhonnyalx/unir-cicd.git'
         }
     }
     
