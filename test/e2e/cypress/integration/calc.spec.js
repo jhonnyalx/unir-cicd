@@ -2,7 +2,7 @@
 
 context('Calc', () => {
   beforeEach(() => {
-    cy.visit('http://calc-web/')
+    cy.visit('http://localhost:5000')
   })
 
   it('get the title', () => {
@@ -48,7 +48,15 @@ context('Calc', () => {
   })
 
   it('increases the history log', () => {
-    cy.get('#button-add').click().click().click()
+    cy.get('#in-op1').clear().type('1')
+    cy.get('#in-op2').clear().type('1')
+    cy.get('#button-add').click()
+    cy.get('#in-op1').clear().type('2')
+    cy.get('#in-op2').clear().type('2')
+    cy.get('#button-add').click()
+    cy.get('#in-op1').clear().type('3')
+    cy.get('#in-op2').clear().type('3')
+    cy.get('#button-add').click()
     cy.get('#history-log').children().its('length')
     .should('eq', 3)
     cy.screenshot()

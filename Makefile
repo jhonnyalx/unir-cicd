@@ -10,7 +10,7 @@ server:
 test-unit: clean-test
 	-docker rm -f unit-tests || true
 	mkdir -p results
-	docker run --name unit-tests --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest bash -c "mkdir -p results && pytest --cov --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml -m unit" || true
+	docker run --name unit-tests --env PYTHONPATH=/opt/calc -w /opt/calc calculator-app:latest bash -c "mkdir -p results && pytest --cov=app --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml -m unit" || true
 	docker cp unit-tests:/opt/calc/results ./ || true
 	docker rm -f unit-tests || true
 

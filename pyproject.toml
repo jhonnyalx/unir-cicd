@@ -10,7 +10,11 @@ markers = [
 ]
 
 [tool.coverage.run]
+source = ["app"]
 omit = ["*__init__.py", "test/*"]
+
+[tool.coverage.html]
+directory = "results/coverage"
 
 [tool.black]
 exclude = "/src/(vendor)/"
