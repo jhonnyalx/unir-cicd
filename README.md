@@ -4,3 +4,5 @@ Este repositorio incluye un proyecto sencillo para demostrar el uso de SonarQube
 
 El único requisito es tener Docker instalado. Los comandos del Makefile funcionarán en MacOS y Linux. En caso de usar Windows, será necesario adaptarlos o ejecutarlos en una máquina virtual Linux con Docker instalado.
 
+test
+
