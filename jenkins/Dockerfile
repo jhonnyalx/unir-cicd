@@ -1,40 +1,47 @@
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:lts-jdk17
 
 USER root
 
-# Instalar herramientas necesarias
+# Variables de entorno
+ENV DOCKER_GROUP_ID=999 \
+    DEBIAN_FRONTEND=noninteractive \
+    DOCKER_HOST=unix:///var/run/docker.sock \
+    DOCKER_TLS_CERTDIR="" \
+    JENKINS_HOME=/var/jenkins_home
+
+# Instalar herramientas necesarias y Docker
 RUN apt-get update && \
-    apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release \
-    software-properties-common \
-    make
-
-# Instalar Docker
-RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
-    sh get-docker.sh
-
-# Agregar usuario jenkins al grupo docker y ajustar permisos
-RUN groupadd -f docker && \
+    apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        build-essential \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+        make \
+        software-properties-common && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Instalar Docker usando el script oficial
+    curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sh get-docker.sh && \
+    rm get-docker.sh && \
+    # Configurar grupo docker y permisos
+    groupmod -g ${DOCKER_GROUP_ID} docker || true && \
     usermod -aG docker jenkins && \
-    chown root:docker /var/run/docker.sock && \
-    chmod 660 /var/run/docker.sock || true
+    # Asegurar que el socket de Docker tenga los permisos correctos
+    mkdir -p /var/run && \
+    touch /var/run/docker.sock && \
+    chmod 666 /var/run/docker.sock
 
-# Limpiar cache de apt
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Cambiar a usuario jenkins para instalar plugins
 USER jenkins
 
-# Instalar plugins de Jenkins necesarios
-RUN jenkins-plugin-cli --plugins "htmlpublisher:1.31"
+# Instalar plugins de Jenkins
+RUN jenkins-plugin-cli --plugins "htmlpublisher:1.31 docker-workflow:563.vd5d2e5c4007f"
 
-# Exponer el puerto de Jenkins
-EXPOSE 8080
+# Verificación de salud mejorada
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD curl -f http://localhost:8080/login && \
+        (docker info > /dev/null 2>&1 || exit 1) || exit 1
 
-# Exponer el puerto para el agente JNLP
-EXPOSE 50000
+EXPOSE 8080 50000
