@@ -20,6 +20,7 @@ context('Calc', () => {
     cy.get('#in-op1').clear().type('2')
     cy.get('#in-op2').clear().type('3')
     cy.get('#button-add').click()
+    cy.wait(1000) // Esperar a que la API responda
     cy.get('#result-area').should('have.text', "Result: 5")
     cy.screenshot()
   })
@@ -33,9 +34,7 @@ context('Calc', () => {
   })
 
   it('can click substract (using fixture)', () => {
-    cy.fixture('result8.txt').as('result')
-    cy.server()
-    cy.route('GET', 'calc/substract/4/-4', '@result').as('getResult')
+    cy.intercept('GET', '**/calc/substract/4/-4', '8').as('getResult')
 
     cy.get('#in-op1').clear().type('4')
     cy.get('#in-op2').clear().type('-4')
@@ -51,12 +50,15 @@ context('Calc', () => {
     cy.get('#in-op1').clear().type('1')
     cy.get('#in-op2').clear().type('1')
     cy.get('#button-add').click()
+    cy.wait(1000) // Esperar a que la primera operación termine
     cy.get('#in-op1').clear().type('2')
     cy.get('#in-op2').clear().type('2')
     cy.get('#button-add').click()
+    cy.wait(1000) // Esperar a que la segunda operación termine
     cy.get('#in-op1').clear().type('3')
     cy.get('#in-op2').clear().type('3')
     cy.get('#button-add').click()
+    cy.wait(1000) // Esperar a que la tercera operación termine
     cy.get('#history-log').children().its('length')
     .should('eq', 3)
     cy.screenshot()
