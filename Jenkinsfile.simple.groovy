@@ -1,5 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        label 'docker'
+    }
+
+
+    stage('Source') {
+        steps {
+            git 'https://github.com/srayuso/unir-cicd.git'
+        }
+    }
     
     stages {        
         stage('Build') {
