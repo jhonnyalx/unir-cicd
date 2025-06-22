@@ -17,7 +17,7 @@ pipeline {
                     // Opción 2: Alternativa usando git directamente (comentada)
                     // git branch: "${branchName}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
                     
-                    // Mostrar información de la rama actual
+                    // Mostrar información de la rama actual 
                     sh 'echo "Rama actual: $(git branch --show-current)"'
                     sh 'echo "Último commit: $(git log -1 --oneline)"'
                 }
