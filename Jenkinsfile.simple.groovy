@@ -1,8 +1,52 @@
-node('agent01') {
-    stage('Source') {
-        git 'https://github.com/srayuso/unir-test.git'
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                sh 'make build'
+            }
+        }
+        
+        stage('Unit Tests') {
+            steps {
+                sh 'make test-unit'
+                junit 'results/unit_result.xml'
+            }
+        }
+        
+        stage('API Tests') {
+            steps {
+                sh 'make test-api'
+                junit 'results/api_result.xml'
+            }
+        }
+        
+        stage('E2E Tests') {
+            steps {
+                sh 'make test-e2e'
+                junit 'results/cypress_result.xml'
+                archiveArtifacts artifacts: 'results/screenshots/**, results/videos/**', fingerprint: true
+            }
+        }
+
+        stage('Coverage') {
+            steps {
+                publishHTML(target: [
+                    reportName: 'Coverage Report',
+                    reportDir: 'results/coverage',
+                    reportFiles: 'index.html',
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
+                ])
+            }
+        }
     }
-    stage('Build') {
-        echo 'Building stage!'
+    
+    post {
+        always {
+            cleanWs()
+        }
     }
 }
