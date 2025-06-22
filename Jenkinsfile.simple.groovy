@@ -2,28 +2,24 @@ pipeline {
     agent {
         label 'docker'
     }
-    
-    // Parámetros para permitir selección de rama
-    parameters {
-        choice(
-            name: 'BRANCH_NAME',
-            choices: ['master', 'feature/dev-jzapata'],
-            description: 'Selecciona la rama a construir'
-        )
-        booleanParam(
-            name: 'FORCE_BUILD',
-            defaultValue: false,
-            description: 'Forzar construcción incluso si no hay cambios'
-        )
-    }
 
     stages {
         stage('Source') {
             steps {
                 script {
-                    echo "Construyendo desde la rama: ${params.BRANCH_NAME}"
-                    // Usar el parámetro para seleccionar la rama
-                    git branch: "${params.BRANCH_NAME}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
+                    // Detectar automáticamente la rama del commit
+                    def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'master'
+                    echo "Construyendo automáticamente desde la rama: ${branchName}"
+                    
+                    // Opción 1: Usar checkout para obtener automáticamente la rama correcta
+                    checkout scm
+                    
+                    // Opción 2: Alternativa usando git directamente (comentada)
+                    // git branch: "${branchName}", url: 'https://github.com/jhonnyalx/unir-cicd.git'
+                    
+                    // Mostrar información de la rama actual
+                    sh 'echo "Rama actual: $(git branch --show-current)"'
+                    sh 'echo "Último commit: $(git log -1 --oneline)"'
                 }
             }
         }
