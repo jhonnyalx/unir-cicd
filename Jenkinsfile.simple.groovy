@@ -46,6 +46,7 @@ pipeline {
     
     post {
         always {
+            sh 'make clean-all || true'
             cleanWs()
         }
     }
