@@ -18,12 +18,4 @@ fast = true
 line-length = 160
 skip-string-normalization = true
 verbose = true
-quite = true 
-[tool.coverage.run]
-omit = ['*__init__.py', 'test/*']
-[tool.pytest.ini_options]
-junit_family = 'xunit2'
-markers = [
-    'unit: pruebas unitarias',
-    'api: pruebas de API, requiere aplicacion en ejecucion'
-]
+quite = true
