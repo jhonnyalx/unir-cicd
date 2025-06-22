@@ -39,8 +39,11 @@ test-e2e: clean-all
 	docker cp ./test/e2e/cypress.json e2e-tests:/cypress.json
 	docker cp ./test/e2e/cypress e2e-tests:/cypress
 	docker start -a e2e-tests || true
-	docker cp e2e-tests:/results ./  || true
-	docker rm --force apiserver  || true
+	mkdir -p results/screenshots results/videos
+	docker cp e2e-tests:/cypress/screenshots/. results/screenshots/ || true
+	docker cp e2e-tests:/cypress/videos/. results/videos/ || true
+	docker cp e2e-tests:/results/. results/ || true
+	docker rm --force apiserver || true
 	docker rm --force calc-web || true
 	docker rm --force e2e-tests || true
 	docker network rm calc-test-e2e || true
