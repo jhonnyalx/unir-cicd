@@ -19,7 +19,7 @@ clean-all:
 
 test-api: clean-all
 	docker network create calc-test-api
-	docker run -d --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py --env FLASK_RUN_PORT=5001 -p 5001:5001 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0 --port=5001
 	sleep 5
 	docker run --network calc-test-api --name api-tests --env PYTHONPATH=/opt/calc --env BASE_URL=http://apiserver:5001/ -w /opt/calc calculator-app:latest pytest --junit-xml=results/api_result.xml -m api  || true
 	docker cp api-tests:/opt/calc/results ./
@@ -31,11 +31,9 @@ test-api: clean-all
 
 test-e2e: clean-all
 	docker network create calc-test-e2e
-	docker run -d --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5000 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker run -d --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py --env FLASK_RUN_PORT=5001 -p 5001:5001 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0 --port=5001
 	sleep 5
-	docker run -d --network calc-test-e2e --name calc-web -p 80:80 -v $(PWD)/web/constants.test.js:/usr/share/nginx/html/constants.js calc-web
-	sleep 5
-	docker run -d --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5001:5001 -w /opt/calc calculator-app:latest flask run --host=0.0.0.0
+	docker cp ./web/constants.test.js calc-web:/usr/share/nginx/html/constants.js || true
 	docker run -d --network calc-test-e2e --name calc-web -p 80:80 calc-web
 	docker create --network calc-test-e2e --name e2e-tests cypress/included:4.9.0 --browser chrome || true
 	docker cp ./test/e2e/cypress.json e2e-tests:/cypress.json
