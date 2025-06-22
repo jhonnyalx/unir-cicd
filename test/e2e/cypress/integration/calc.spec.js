@@ -48,9 +48,24 @@ context('Calc', () => {
   })
 
   it('increases the history log', () => {
-    cy.get('#button-add').click().click().click()
-    cy.get('#history-log').children().its('length')
-    .should('eq', 3)
+    // Establecer valores para los operandos
+    cy.get('#in-op1').clear().type('2')
+    cy.get('#in-op2').clear().type('3')
+    
+    // Hacer clic en el botón de suma y esperar que se actualice el resultado
+    cy.get('#button-add').click()
+    cy.get('#result-area').should('have.text', "Result: 5")
+    
+    // Hacer clic nuevamente y esperar el resultado
+    cy.get('#button-add').click()
+    cy.get('#result-area').should('have.text', "Result: 5")
+    
+    // Hacer clic una tercera vez y esperar el resultado
+    cy.get('#button-add').click()
+    cy.get('#result-area').should('have.text', "Result: 5")
+    
+    // Verificar que el historial tenga 3 entradas
+    cy.get('#history-log').children().its('length').should('eq', 3)
     cy.screenshot()
   })
 
