@@ -7,7 +7,7 @@ pipeline {
     parameters {
         choice(
             name: 'BRANCH_NAME',
-            choices: ['main', 'develop', 'feature/test', 'release/v1.0'],
+            choices: ['master', 'feature/dev-jzapata'],
             description: 'Selecciona la rama a construir'
         )
         booleanParam(
