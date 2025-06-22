@@ -3,14 +3,13 @@ pipeline {
         label 'docker'
     }
 
-
-    stage('Source') {
-        steps {
-            git 'https://github.com/jhonnyalx/unir-cicd.git'
+    stages {
+        stage('Source') {
+            steps {
+                git 'https://github.com/jhonnyalx/unir-cicd.git'
+            }
         }
-    }
-    
-    stages {        
+        
         stage('Build') {
             steps {
                 sh 'make build || (echo "Build failed. Checking Docker logs..." && docker logs calculator-app || true)'
