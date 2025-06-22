@@ -1,13 +1,7 @@
 pipeline {
     agent any
     
-    stages {
-        stage('Clean') {
-            steps {
-                sh 'chmod +x clean.sh && ./clean.sh'
-            }
-        }
-        
+    stages {        
         stage('Build') {
             steps {
                 sh 'make build || (echo "Build failed. Checking Docker logs..." && docker logs calculator-app || true)'
